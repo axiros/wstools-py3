@@ -8,7 +8,6 @@ import sys
 import warnings
 
 from setuptools import setup, find_packages, Command
-from setuptools.command.test import test as TestCommand
 
 NAME = "wstools-py3"
 url = "https://github.com/Synerty/wstools-py3"
@@ -22,49 +21,6 @@ fp.close()
 
 # this should help getting annoying warnings from inside distutils
 warnings.simplefilter('ignore', UserWarning)
-
-
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = []
-
-        FORMAT = '%(levelname)-10s %(message)s'
-        logging.basicConfig(format=FORMAT)
-        logging.getLogger().setLevel(logging.INFO)
-
-        # if we have pytest-cache module we enable the test failures first mode
-        try:
-            import pytest_cache  # noqa
-            self.pytest_args.append("--ff")
-        except ImportError:
-            pass
-        self.pytest_args.append("-s")
-
-        if sys.stdout.isatty():
-            # when run manually we enable fail fast
-            self.pytest_args.append("--maxfail=1")
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # before running tests we need to run autopep8
-        try:
-            subprocess.check_call(
-                "python -m autopep8 -r --in-place wstools/ tests/",
-                shell=True)
-        except subprocess.CalledProcessError:
-            logging.getLogger().warn('autopep8 is not installed so '
-                                     'it will not be run')
-        # import here, cause outside the eggs aren't loaded
-        import pytest  # noqa
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
 
 
 class Release(Command):
@@ -133,7 +89,7 @@ tests_require = [ 'py >= 1.4', 'hacking', 'pytest', 'pytest-cov' ]
 setup(
     name=NAME,
     version=__version__,
-    cmdclass={'test': PyTest, 'release': Release, 'prerelease': PreRelease},
+    cmdclass={'release': Release, 'prerelease': PreRelease},
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     tests_require=tests_require,
