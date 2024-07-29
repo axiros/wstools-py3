@@ -89,7 +89,7 @@ tests_require = [ 'py >= 1.4', 'hacking', 'pytest', 'pytest-cov' ]
 setup(
     name=NAME,
     version=__version__,
-    cmdclass={'test': PyTest, 'release': Release, 'prerelease': PreRelease},
+    cmdclass={'release': Release, 'prerelease': PreRelease},
     packages=find_packages(exclude=['tests']),
     include_package_data=True,
     tests_require=tests_require,
